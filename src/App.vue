@@ -17,14 +17,19 @@ function logout() {
       <div class="nav-links">
         <router-link to="/dashboard">Dashboard</router-link>
         <router-link to="/api-keys">API Keys</router-link>
+        <router-link v-if="auth.isAdmin" to="/admin/ai-provider-keys" class="admin-link">
+          AI Provider Keys
+        </router-link>
       </div>
       <div class="nav-user">
-        <span>{{ auth.user?.name }}</span>
+        <span class="user-name">
+          {{ auth.user?.name }}
+          <span v-if="auth.isAdmin" class="admin-badge">Admin</span>
+        </span>
         <button @click="logout">Выйти</button>
       </div>
     </nav>
 
-    <!-- Сюда рендерятся страницы из views/ -->
     <main class="content">
       <router-view />
     </main>
@@ -59,17 +64,40 @@ function logout() {
   color: #646cff;
 }
 
+.admin-link {
+  color: #ff9800 !important;
+}
+
+.admin-link.router-link-active {
+  color: #ffc107 !important;
+}
+
 .nav-user {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.nav-user span {
+.user-name {
   color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-badge {
+  background: #ff9800;
+  color: #000;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .content {
+  max-width: 1280px;
+  margin: 0 auto;
   padding: 2rem;
 }
 </style>

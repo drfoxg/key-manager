@@ -6,6 +6,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  is_admin: boolean;
 }
 
 export const useAuthStore = defineStore("auth", () => {
@@ -13,6 +14,7 @@ export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
 
   const isAuthenticated = computed(() => !!token.value);
+  const isAdmin = computed(() => user.value?.is_admin === true);
 
   async function login(email: string, password: string) {
     const { data } = await axios.post("/api/v1/login", { email, password });
@@ -45,6 +47,8 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   function logout() {
+    axios.post("/api/v1/logout").catch(() => {});
+
     token.value = null;
     user.value = null;
     localStorage.removeItem("token");
@@ -56,12 +60,21 @@ export const useAuthStore = defineStore("auth", () => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token.value}`;
       try {
         const { data } = await axios.get("/api/v1/user");
-        user.value = data.data;
+        user.value = data;
       } catch {
         logout();
       }
     }
   }
 
-  return { token, user, isAuthenticated, login, register, logout, init };
+  return {
+    token,
+    user,
+    isAuthenticated,
+    isAdmin,
+    login,
+    register,
+    logout,
+    init,
+  };
 });

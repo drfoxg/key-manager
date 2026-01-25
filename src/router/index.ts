@@ -16,7 +16,7 @@ const routes = [
     meta: { guest: true },
   },
 
-  // Защищённые
+  // Защищённые (для авторизованных)
   {
     path: "/dashboard",
     name: "dashboard",
@@ -30,6 +30,14 @@ const routes = [
     meta: { requiresAuth: true },
   },
 
+  // Админские маршруты
+  {
+    path: "/admin/ai-provider-keys",
+    name: "ai-provider-keys",
+    component: () => import("@/views/admin/AiProviderKeysView.vue"),
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+
   // Редиректы
   { path: "/", redirect: "/dashboard" },
   { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
@@ -40,15 +48,21 @@ const router = createRouter({
   routes,
 });
 
-// Navigation Guard
 router.beforeEach((to) => {
   const auth = useAuthStore();
 
+  // Защищённый маршрут + не авторизован → login
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: "login", query: { redirect: to.fullPath } };
   }
 
+  // Гостевой маршрут + уже авторизован → dashboard
   if (to.meta.guest && auth.isAuthenticated) {
+    return { name: "dashboard" };
+  }
+
+  // Админский маршрут + не админ → dashboard
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
     return { name: "dashboard" };
   }
 });

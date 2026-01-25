@@ -390,7 +390,7 @@ onMounted(fetchKeys)
 
 <style scoped>
 .ai-provider-keys {
-    max-width: 1400px;
+    max-width: 1280px;
     margin: 0 auto;
 }
 
@@ -431,6 +431,8 @@ onMounted(fetchKeys)
     padding: 0.6rem;
     text-align: left;
     border-bottom: 1px solid #333;
+    vertical-align: middle;
+    height: 48px;
 }
 
 .keys-table th {
@@ -451,6 +453,13 @@ onMounted(fetchKeys)
 .user-info small {
     color: #888;
     font-size: 0.8rem;
+}
+
+.provider-code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.85rem;
+    background: none;
+    padding: 0;
 }
 
 .provider-badge {
@@ -502,12 +511,15 @@ code {
     display: flex;
     gap: 0.3rem;
     flex-wrap: nowrap;
+    align-items: center;
+    height: 100%;
 }
 
 .btn-small {
     padding: 0.3rem 0.5rem;
     font-size: 0.85rem;
     min-width: auto;
+    line-height: 1;
 }
 
 .btn-primary {

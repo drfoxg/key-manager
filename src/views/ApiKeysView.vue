@@ -142,7 +142,7 @@ onMounted(fetchApiKeys)
 
 <style scoped>
 .api-keys {
-    max-width: 900px;
+    max-width: 1280px;
     margin: 0 auto;
 }
 

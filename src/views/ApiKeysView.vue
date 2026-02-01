@@ -88,7 +88,7 @@ onMounted(fetchApiKeys)
         <!-- Создание ключа -->
         <div class="create-form">
             <input v-model="newKeyName" type="text" placeholder="Название ключа" @keyup.enter="createKey" />
-            <button @click="createKey" :disabled="creating">
+            <button @click="createKey" :disabled="creating" class="btn-primary">
                 {{ creating ? 'Создание...' : 'Создать' }}
             </button>
         </div>

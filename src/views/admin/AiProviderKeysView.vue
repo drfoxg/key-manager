@@ -38,6 +38,7 @@ interface AiProviderKey {
 
 // Состояние списка
 const keys = ref<AiProviderKey[]>([])
+const users = ref<User[]>([])
 const loading = ref(true)
 const error = ref('')
 
@@ -94,6 +95,11 @@ async function fetchKeys() {
         const { data } = await axios.get('/api/v1/ai-provider-keys')
         if (data.success) {
             keys.value = data.data
+
+            // Сохраняем список пользователей из meta
+            if (data.meta?.filters?.users) {
+                users.value = data.meta.filters.users
+            }
         }
     } catch (e: any) {
         error.value = e.response?.data?.message || 'Ошибка загрузки'
@@ -106,7 +112,7 @@ function openCreateModal() {
     modalMode.value = 'create'
     editingKey.value = null
     form.value = {
-        user_id: '',
+        user_id: users.value.length === 1 ? String(users.value[0].id) : '',
         provider: 'gigachat',
         api_key: '',
         label: '',
@@ -222,6 +228,11 @@ async function deleteKey(key: AiProviderKey) {
     }
 }
 
+// Хелпер для отображения пользователя
+function getUserLabel(user: User): string {
+    return `${user.name} (${user.email})`
+}
+
 onMounted(fetchKeys)
 </script>
 
@@ -238,7 +249,13 @@ onMounted(fetchKeys)
                 <option value="">Все провайдеры</option>
                 <option v-for="p in providers" :key="p.value" :value="p.value">{{ p.label }}</option>
             </select>
-            <input v-model="filterUserId" type="number" placeholder="User ID" />
+
+            <select v-model="filterUserId">
+                <option value="">Все пользователи</option>
+                <option v-for="user in users" :key="user.id" :value="user.id">
+                    {{ getUserLabel(user) }}
+                </option>
+            </select>
         </div>
 
         <div v-if="error" class="error">{{ error }}</div>
@@ -277,7 +294,7 @@ onMounted(fetchKeys)
                             </span>
                         </td>
                         <td>{{ key.label || '—' }}</td>
-                        <td><code class="provider-code">{{ key.provider_label }}</code></td>
+                        <td><code class="provider-code">{{ key.masked_key }}</code></td>
                         <td>
                             <span :class="['status', key.is_available ? 'available' : 'unavailable']">
                                 {{ key.status }}
@@ -311,8 +328,20 @@ onMounted(fetchKeys)
 
                 <form @submit.prevent="saveKey" class="form">
                     <div class="form-group" v-if="modalMode === 'create'">
-                        <label>User ID *</label>
-                        <input v-model="form.user_id" type="number" required />
+                        <label>Пользователь *</label>
+                        <select v-model="form.user_id" required>
+                            <option value="" disabled>Выберите пользователя</option>
+                            <option v-for="user in users" :key="user.id" :value="user.id">
+                                {{ getUserLabel(user) }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" v-else>
+                        <label>Пользователь</label>
+                        <input type="text"
+                            :value="users.find(u => u.id === parseInt(form.user_id))?.name || `User #${form.user_id}`"
+                            disabled />
                     </div>
 
                     <div class="form-group">
@@ -390,7 +419,7 @@ onMounted(fetchKeys)
 
 <style scoped>
 .ai-provider-keys {
-    max-width: 1280px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -414,6 +443,7 @@ onMounted(fetchKeys)
     border-radius: 4px;
     background: #1a1a1a;
     color: #fff;
+    min-width: 200px;
 }
 
 .table-wrapper {
@@ -522,28 +552,6 @@ code {
     line-height: 1;
 }
 
-.btn-primary {
-    background: #646cff;
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.btn-primary:hover {
-    background: #535bf2;
-}
-
-.btn-secondary {
-    background: #333;
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
 .btn-danger {
     background: #f44336;
     color: #fff;
@@ -617,6 +625,12 @@ code {
     border-radius: 4px;
     background: #242424;
     color: #fff;
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .form-group.checkbox {

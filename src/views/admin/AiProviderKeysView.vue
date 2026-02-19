@@ -39,6 +39,7 @@ interface AiProviderKey {
 // Состояние списка
 const keys = ref<AiProviderKey[]>([])
 const users = ref<User[]>([])
+const admins = ref<User[]>([])
 const loading = ref(true)
 const error = ref('')
 
@@ -99,6 +100,11 @@ async function fetchKeys() {
             // Сохраняем список пользователей из meta
             if (data.meta?.filters?.users) {
                 users.value = data.meta.filters.users
+            }
+
+            // Сохраняем список админов
+            if (data.meta?.admins) {
+                admins.value = data.meta.admins
             }
         }
     } catch (e: any) {
@@ -331,7 +337,7 @@ onMounted(fetchKeys)
                         <label>Пользователь *</label>
                         <select v-model="form.user_id" required>
                             <option value="" disabled>Выберите пользователя</option>
-                            <option v-for="user in users" :key="user.id" :value="user.id">
+                            <option v-for="user in admins" :key="user.id" :value="user.id">
                                 {{ getUserLabel(user) }}
                             </option>
                         </select>
@@ -353,7 +359,7 @@ onMounted(fetchKeys)
 
                     <div class="form-group">
                         <label>API Key {{ modalMode === 'create' ? '*' : '(оставьте пустым, если не меняется)'
-                            }}</label>
+                        }}</label>
                         <input v-model="form.api_key" type="password" :required="modalMode === 'create'" />
                     </div>
 

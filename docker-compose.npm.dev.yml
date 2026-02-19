@@ -1,0 +1,9 @@
+services:
+  gogpt-spa:
+    container_name: gogpt-spa-dev
+    networks:
+      - nginxproxyman
+
+networks:
+  nginxproxyman:
+    external: true

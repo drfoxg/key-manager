@@ -1,0 +1,13 @@
+services:
+    gogpt-spa:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: gogpt-spa
+        restart: unless-stopped
+        networks:
+            - nginxproxyman
+
+networks:
+    nginxproxyman:
+        external: true

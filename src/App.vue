@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
 const router = useRouter()
+const loading = ref(true);
+
+onMounted(async () => {
+  await auth.init();
+  loading.value = false;
+});
 
 function logout() {
   auth.logout()
@@ -12,6 +19,11 @@ function logout() {
 </script>
 
 <template>
+  <div v-if="loading" class="app-loading">
+    <div class="spinner"></div>
+    <span>Загрузка...</span>
+  </div>
+
   <div class="app">
     <nav v-if="auth.isAuthenticated" class="navbar">
       <div class="nav-links">
